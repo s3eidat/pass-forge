@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; media-src 'self' data: blob:; connect-src 'self' data: blob:; worker-src 'self' blob:; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Pass Forge — Free Strong Password &amp; Passphrase Generator | S3eidat Tools</title>
+<meta name="description" content="Generate strong random passwords and diceware-style passphrases in your browser with cryptographic randomness. Entropy shown, bulk generate, exclude look-alikes. Nothing stored or sent.">
+<meta property="og:title" content="Pass Forge — free, private password generator">
+<meta property="og:description" content="Strong passwords and passphrases made locally with crypto.getRandomValues. Nothing stored or sent.">
+<meta property="og:image" content="screenshot.png">
+<link rel="icon" href="kit/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="kit/kit.css">
+<link rel="stylesheet" href="app.css">
+<script src="kit/kit.js"></script>
+</head>
+<body data-tool="pass-forge">
+<main class="s3-main">
+  <section class="s3-hero">
+    <h1>Pass Forge</h1>
+    <p>Strong passwords and passphrases, generated on your device with the browser's cryptographic random generator. Nothing is stored, logged or sent anywhere.</p>
+  </section>
+
+  <section class="card">
+    <div class="row between">
+      <div class="seg" id="mode" role="group" aria-label="Kind">
+        <button aria-pressed="true" data-v="password">Password</button>
+        <button aria-pressed="false" data-v="phrase">Passphrase</button>
+      </div>
+      <span class="chip" id="bits">— bits</span>
+    </div>
+    <div class="pf-result mt">
+      <output class="pf-pass mono" id="pass" aria-live="polite" tabindex="0" title="Click to copy"></output>
+      <div class="pf-actions">
+        <button class="btn icon" id="regen" aria-label="Generate a new one" title="New (R)"><svg class="i"><use href="#i-refresh"/></svg></button>
+        <button class="btn primary" id="copy"><svg class="i"><use href="#i-copy"/></svg>Copy</button>
+      </div>
+    </div>
+    <div class="pf-meter mt" aria-hidden="true"><i id="meter"></i></div>
+    <div class="row between mt">
+      <span id="label" class="chip">—</span>
+      <span class="faint" id="crack"></span>
+    </div>
+  </section>
+
+  <div class="grid-2 mt pf-grid">
+    <section class="card">
+      <h2>Options</h2>
+      <div id="opt-password" class="stack">
+        <div class="stack pf-len">
+          <div class="row between"><label class="field" for="len">Length</label><input type="number" class="input pf-small" id="lenn" min="8" max="128" value="20" aria-label="Length in characters"></div>
+          <input type="range" id="len" min="8" max="128" value="20" aria-label="Length slider">
+        </div>
+        <div class="pf-sets">
+          <label class="check"><input type="checkbox" id="lower" checked> Lowercase <span class="faint mono">a–z</span></label>
+          <label class="check"><input type="checkbox" id="upper" checked> Uppercase <span class="faint mono">A–Z</span></label>
+          <label class="check"><input type="checkbox" id="digits" checked> Digits <span class="faint mono">0–9</span></label>
+          <label class="check"><input type="checkbox" id="symbols" checked> Symbols <span class="faint mono">!#$%&amp;*+-=?@^_~…</span></label>
+        </div>
+        <label class="check"><input type="checkbox" id="lookalike" checked> Exclude look-alikes <span class="faint mono">I l 1 | O 0 o</span></label>
+        <label class="check"><input type="checkbox" id="require" checked> Require at least one of each chosen set</label>
+        <label class="field" for="exclude">Never use these characters
+          <input type="text" class="input mono" id="exclude" placeholder="e.g. {}[]" autocomplete="off" spellcheck="false">
+        </label>
+        <p class="faint" id="poolinfo"></p>
+      </div>
+      <div id="opt-phrase" class="stack" hidden>
+        <div class="stack pf-len">
+          <div class="row between"><label class="field" for="words">Words</label><span id="wordsv" class="pf-num">6</span></div>
+          <input type="range" id="words" min="3" max="12" value="6">
+        </div>
+        <label class="field" for="sep">Separator
+          <select class="select" id="sep">
+            <option value="-">Hyphen  (sun-river-maple)</option>
+            <option value=" ">Space  (sun river maple)</option>
+            <option value=".">Dot  (sun.river.maple)</option>
+            <option value="_">Underscore  (sun_river_maple)</option>
+            <option value="">None  (SunRiverMaple)</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="cap"> Capitalize each word</label>
+        <label class="check"><input type="checkbox" id="addnum"> Add a number (0–99) to one random word</label>
+        <p class="faint" id="listinfo"></p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row between">
+        <h2>Bulk generate</h2>
+        <div class="row">
+          <button class="btn small" id="bulkcopy"><svg class="i"><use href="#i-copy"/></svg>Copy all</button>
+          <button class="btn small" id="bulksave"><svg class="i"><use href="#i-download"/></svg>.txt</button>
+        </div>
+      </div>
+      <div class="row pf-bulkrow">
+        <label class="field grow" for="count">How many (1–1000)
+          <input type="number" class="input" id="count" min="1" max="1000" value="10">
+        </label>
+        <button class="btn" id="bulk">Generate list</button>
+      </div>
+      <pre class="out mt pf-list" id="list" tabindex="0"><span class="faint">Uses the current options. Each line is independent.</span></pre>
+    </section>
+  </div>
+
+  <section class="card mt">
+    <h2>How it works</h2>
+    <p class="muted pf-how">Every character and word is picked with <code>crypto.getRandomValues</code> and rejection sampling, so no
+      character is more likely than another (no modulo bias). "Require each set" regenerates until the rule holds, which keeps every valid
+      password equally likely; the entropy shown counts exactly how many such passwords exist. Passwords are never saved: only your option
+      choices are remembered on this device.</p>
+  </section>
+</main>
+<script src="words.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
